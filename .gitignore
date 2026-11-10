@@ -1,0 +1,21 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (raw downloads can be large; keep them out of Git)
+data/raw/
+
+# Secrets (API keys, account details)
+.env
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
