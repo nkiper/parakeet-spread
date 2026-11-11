@@ -16,6 +16,12 @@ Choices that have been made, and why, go in [`decisions.md`](decisions.md).
 - [ ] Choose the figures for the presentation: animation (`hectads_by_year.mp4`),
       corrected vs uncorrected range, visited squares per year, spread rate before and
       from 2010 (`spread_rate_by_period.png`), acceleration checks, possibly 10 km vs 2 km
+- [x] Spread model: five centres at one constant speed, speed and start years fitted to
+      1970–2025 (`05_spread-model`). Fits much better than London alone; new centres
+      account for about half of the acceleration after 2010
+- [x] Atlas check: BTO atlases as independent points (`04_effort-correction`, end)
+- [ ] Decide whether the spread model goes in the presentation (`spread_model_curves.png`,
+      `spread_model_speed_profile.png`, `spread_model_maps.png`, `atlas_check.png`)
 - [ ] Limitations slide: coverage corrected but not intensity; atlas years; eBird
       growth; NBN download vs API versions; Great Britain only
 - [ ] Presentation
@@ -31,9 +37,9 @@ Choices that have been made, and why, go in [`decisions.md`](decisions.md).
 
 ### Future work (outlook)
 
-- Separate the atlas data properly: NBN API queries without the atlas datasets, and the
-  atlases as separate comparison points; validate against Bird Atlas maps and BBS trends
-  (step 9)
+- Atlas check for 2007–11: the three older atlases are done as independent points
+  (`04_effort-correction`, end). Bird Atlas 2007–11 is mixed with BirdTrack in the NBN
+  data, so compare with the published atlas maps instead; also BBS trends (step 9)
 - A real intensity correction: occupancy models (detection probability per visit) or
   methods such as Frescalo
 - Origin of the spread, building on Heald et al. (2019), e.g. geographic profiling of
@@ -91,6 +97,10 @@ Choices that have been made, and why, go in [`decisions.md`](decisions.md).
   same with NBN data only, so it is not caused by GBIF location accuracy. It fits more
   intensive recording (BirdTrack from 2004, then Bird Atlas 2007–11), possibly together
   with real filling in. From 2007 both square sizes grow at the same rate.
+- Observer effect in the spread model (`05_spread-model`): cities have more birdwatchers
+  and more escaped cage birds, so the urban "centres" may partly reflect where people look.
+  The effort correction covers which squares were visited, not how intensively, so this is
+  not corrected.
 - Sparse 10 km squares (1–2 records in a year): NBN rises during the atlas years
   (37 in 2003 to 124 in 2008) and then stays at ~100–160; GBIF stays low until ~2015 and
   then rises steeply (to 169 in 2025). Recent growth at the edges of the range comes
