@@ -1,8 +1,9 @@
 """Build the merged and filtered parakeet records table.
 
-Loads the raw GBIF and NBN Atlas downloads, merges them into one table and applies
-the filters decided in notebooks/01_explore-sources.ipynb. Each step refers to its
-entry in decisions.md.
+Loads the raw GBIF and NBN Atlas downloads, merges them into one table, applies the
+filters decided in notebooks/01_explore-sources.ipynb, and assigns each record to
+10 km and 2 km grid squares (notebooks/02_spatial-unit.ipynb). Each step refers to
+its entry in decisions.md.
 
 Output: data/processed/records.parquet
 
@@ -12,6 +13,8 @@ Run from the project root:
 
 from pathlib import Path
 
+import geopandas as gpd
+import numpy as np
 import pandas as pd
 import requests
 
@@ -198,6 +201,34 @@ def apply_filters(records: pd.DataFrame) -> pd.DataFrame:
     return records.reset_index(drop=True)
 
 
+# --- Grid squares ------------------------------------------------------------
+
+def square_id(easting, northing, size_m):
+    """ID of the grid square containing each point: south-west corner in km, e.g. '530_180'."""
+    e_km = (easting // size_m * size_m / 1000).astype(int)
+    n_km = (northing // size_m * size_m / 1000).astype(int)
+    return e_km.astype(str) + "_" + n_km.astype(str)
+
+
+def add_squares(records: pd.DataFrame) -> pd.DataFrame:
+    """Add British National Grid coordinates and 10 km / 2 km square IDs.
+
+    decisions.md: "Spatial unit". Northern Ireland records are placed on the British
+    National Grid too, so all records use the same squares.
+    """
+    points = gpd.points_from_xy(
+        records["decimalLongitude"], records["decimalLatitude"], crs="EPSG:4326"
+    ).to_crs("EPSG:27700")
+    records = records.assign(easting=points.x, northing=points.y)
+    assert np.isfinite(records[["easting", "northing"]]).all().all(), "coordinate conversion failed"
+
+    records["hectad"] = square_id(records["easting"], records["northing"], 10_000)  # 10 km
+    records["tetrad"] = square_id(records["easting"], records["northing"], 2_000)   # 2 km
+    print(f"Squares: {records['hectad'].nunique():,} occupied 10 km, "
+          f"{records['tetrad'].nunique():,} occupied 2 km")
+    return records
+
+
 # --- Main --------------------------------------------------------------------
 
 def main():
@@ -205,6 +236,7 @@ def main():
     nbn = load_nbn()
     records = merge(gbif, nbn)
     records = apply_filters(records)
+    records = add_squares(records)
 
     PROCESSED.mkdir(parents=True, exist_ok=True)
     records.to_parquet(OUT_PATH, index=False)

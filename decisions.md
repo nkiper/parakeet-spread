@@ -101,8 +101,26 @@ different areas. With 3 records it has no effect on the analysis.
   earlier steps).
 **Reason:** None of the flags point to a wrong year or a wrong location.
 
+## 2026-11-11: Spatial unit
+**Decision:** Use 10 km squares (hectads, British National Grid) as the main spatial
+unit. 2 km squares (tetrads) are used only as a comparison for the later period, when
+10 km records are rare.
+**Reason:**
+- 10 km resolution records (2% of NBN) are concentrated in the early years, largely
+  from the BTO atlases. Finer squares would drop much of the data for the start of
+  the spread.
+- GBIF records mostly have no coordinate uncertainty, and 54% come from locations used
+  100+ times (birding hotspots). At 2 km, occupancy would largely reflect where birders
+  go.
+- All records fit inside a 10 km square, so none are lost.
+**Consequence:** No coordinate uncertainty filter is needed for the main analysis.
+**Note:** Northern Ireland records (~65) are placed on the British National Grid rather
+than the Irish Grid, so that all records use the same squares.
+**Reference:** Heald et al. (2019) used points, not grid squares, but their question
+was the origin of the population, not the rate of spread. Skellam (1951) models the
+spread through the occupied area, which grid squares give directly.
+
 ## Open decisions
-- Spatial unit (points or grid squares, and which size)
 - Origin of the spread
 - Yearly range metric
 - Correction for recording effort

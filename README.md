@@ -4,18 +4,19 @@ Mapping how the ring-necked parakeet (*Psittacula krameri*), an introduced speci
 
 ## Status
 
-Work in progress. Sources compared and merged into one table; data cleaning is next.
+Work in progress. Records merged, filtered and assigned to 10 km squares; the yearly range metric is next.
 
 - [x] Project setup
 - [x] Download records from GBIF and the NBN Atlas
 - [x] Compare sources: records per year, overlap, data quality (`01_explore-sources`)
 - [x] Choose main source: merged (all NBN records plus GBIF-only records)
-- [ ] Clean data: filters (e.g. vitality, coordinate uncertainty) and duplicate sightings across sources
-- [ ] Choose spatial unit and yearly range metric
+- [x] Clean data: filters for vitality, year and Isle of Man (`src/build_records.py`). Duplicate sightings across systems are an open to-do in `notes.md`
+- [x] Choose spatial unit: 10 km squares, with 2 km squares as a comparison (`02_spatial-unit`)
+- [ ] Choose yearly range metric
 - [ ] Correct for recording effort
 - [ ] Map and quantify the spread
 
-Methodological choices and their reasons are logged in [`decisions.md`](decisions.md).
+Methodological choices and their reasons are logged in [`decisions.md`](decisions.md). Open tasks, reminders for the write-up and open questions are in [`notes.md`](notes.md).
 
 ## Data
 
@@ -33,11 +34,13 @@ Raw data is not tracked in Git. To reproduce, download from the GBIF DOI below a
 ```
 data/raw/         original downloads (not tracked)
 data/processed/   merged and filtered records (records.parquet, not tracked) and GBIF dataset titles
-src/              scripts (build_records.py: merge, filter and save the records)
+data/external/    reference data such as land outlines (downloaded automatically, not tracked)
+src/              scripts (build_records.py: merge, filter, assign grid squares and save the records)
 docs/             relevant papers
 notebooks/        analysis notebooks
 figures/          maps and plots
 decisions.md      decision log
+notes.md          to-dos, write-up reminders and open questions
 ```
 
 ## Setup

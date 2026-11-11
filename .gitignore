@@ -12,6 +12,8 @@ __pycache__/
 data/raw/
 # Processed tables can be rebuilt with src/build_records.py
 data/processed/*.parquet
+# External reference data (e.g. Natural Earth outlines), downloaded automatically when missing
+data/external/
 
 # Secrets (API keys, account details)
 .env
