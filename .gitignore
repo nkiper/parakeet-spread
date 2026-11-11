@@ -10,6 +10,8 @@ __pycache__/
 
 # Data (raw downloads can be large; keep them out of Git)
 data/raw/
+# Processed tables can be rebuilt with src/build_records.py
+data/processed/*.parquet
 
 # Secrets (API keys, account details)
 .env
