@@ -1,126 +1,78 @@
 # Decision log
 
-## 2026-11-10: Data sources
-**Decision:** Download parakeet records from both GBIF and the NBN Atlas, then compare
-them before choosing a main source.
-**Reason:** GBIF gives a citable DOI and includes international sources (eBird,
-iNaturalist). The NBN Atlas is the main UK database and may contain records not passed
-on to GBIF. Comparing both first shows which is more complete.
+Choices and their reasons. Limitations, to-dos and future work are in [`notes.md`](notes.md).
 
-## 2026-11-10: GBIF download
-**Query:** (Scientific name = Psittacula krameri AND Country = United Kingdom AND Has coordinate = Yes AND Has geospatial issue = No)
-**Taxonomic reference:** GBIF default (Catalogue of Life).
-**Format:** Simple
-**Records:** 192,792. Excluding geospatial issues removed 0 records.
-**DOI:** https://doi.org/10.15468/dl.xnh55x
-**Citation:** GBIF.org (10 November 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.xnh55x
-**Reason:** Simple format has all fields needed (date, coordinates, uncertainty,
-record type, dataset). Filtering on coordinates in the query; all other filtering done
-in code.
-**Download link:** https://api.gbif.org/v1/occurrence/download/request/0000595-261110092616502.zip
+## Data
 
-## 2026-11-10: NBN Atlas download
-**Query:** Psittacula krameri, occurrence records.
-**Format:** Full Darwin Core
-**Records:** 243,105
-**Reason:** Same column standard as GBIF, which makes comparison and duplicate
-detection easier. Includes grid reference and verification status.
-**Licence note:** Records come from many data partners under CC-BY-NC licence. Credit the NBN Atlas and data partners in README and slides.
-**Citation:** NBN Atlas occurrence download at NBN Atlas [https://nbnatlas.org/] accessed on 10 November 2026.
+### 2026-11-10: Two sources
+**Decision:** Use parakeet records from both GBIF and the NBN Atlas.
+**Reason:** GBIF has a citable DOI and app data (eBird, iNaturalist); the NBN Atlas is the main UK database, mostly BTO data. They overlap very little, so either alone would miss much of the data.
+- **GBIF:** *Psittacula krameri*, United Kingdom, has coordinates, no geospatial issues; simple format; 192,792 records; https://doi.org/10.15468/dl.xnh55x
+- **NBN Atlas:** *Psittacula krameri* occurrence records; full Darwin Core; 243,105 records (CC-BY-NC: credit the data partners). Downloaded again on 11 Nov 2026 with identical records.
+- Raw downloads are kept out of Git; they can be downloaded again.
 
-## 2026-11-10: Raw data storage
-**Decision:** Store raw downloads in data/raw/, excluded from Git via .gitignore.
-**Reason:** Files are large. The data can be re-downloaded using the GBIF DOI and the
-NBN query documented above.
+### 2026-11-11: Merging
+**Decision:** All NBN records, plus the GBIF records not already in NBN. Records in both are matched on GBIF `occurrenceID` = NBN `recordID` (checked on the Suffolk dataset); the NBN version is kept, because it has grid references and verification status.
+**Result:** 1,727 records in both; 434,039 merged. GBIF records use `gbifID` as ID (36 have no `occurrenceID`).
+**Not handled:** the same sighting entered separately in two systems (e.g. eBird and BirdTrack) has unrelated IDs. This does not affect presence per square and year.
 
-## 2026-11-11: GBIF absence records
-**Decision:** Remove GBIF records with `occurrenceStatus` = NOT_DETECTED.
-**Records:** 131 removed, 192,661 kept.
-**Reason:** These record that a parakeet was looked for and not found. They do not
-show where the species occurs.
+### 2026-11-11: Filters
+**Result:** 433,993 records kept.
 
-## 2026-11-11: Matching records between GBIF and NBN Atlas
-**Decision:** Use GBIF `occurrenceID` = NBN `recordID` as the exact match key for
-records present in both sources.
-**Reason:** For NBN-hosted datasets, GBIF stores the NBN record UUID in `occurrenceID`.
-Checked on the Suffolk (SBIS) dataset: same ID, same date and same coordinates in both
-sources. NBN's own `occurrenceID` is the data provider's internal code (e.g.
-`WA0000050000AZZY`) and does not match GBIF.
-**Note:** This only finds records passed from NBN to GBIF. The same sighting entered
-separately in two systems (e.g. eBird and BirdTrack) has unrelated IDs and needs a
-content-based check (same date and grid square).
+| Filter | Removed | Reason |
+|---|---|---|
+| GBIF `NOT_DETECTED` (before merging) | 131 | Absence records |
+| Vitality "dead" | 23 | Only "dead" is evidence against a live bird. "Not recorded" and empty are kept: GBIF has no vitality field, and whole NBN datasets never fill it in |
+| No year | 18 | Needed for a yearly analysis |
+| Before 1963 | 2 | Two isolated records from 1900; the next is from 1963 |
+| Isle of Man | 3 | Not part of the UK, and not in the GBIF download |
+| GBIF data-quality flags | 0 | Checked: years and locations are plausible |
 
-## 2026-11-11: Merging GBIF and NBN Atlas
-**Decision:** Use both sources, merged into one table: all NBN records plus the GBIF
-records not already in NBN. For records in both, keep the NBN version. Further
-filtering is done after merging.
-**Records:** 243,105 NBN + 190,934 GBIF-only = 434,039. 1,727 GBIF records were
-already in NBN and left out.
-**Reason:** The sources overlap very little. Most GBIF records come from apps that
-publish only to GBIF (eBird, Birda, iNaturalist), and most NBN records come from
-"Birds (BTO+partners)", which is not in GBIF. Using only one source would lose a large
-share of the records. NBN is kept for the overlap because it has grid references and
-verification status.
-**Note:** GBIF-only records use `gbifID` as record ID, because 36 of them have no
-`occurrenceID`.
+## Spatial unit
 
-## 2026-11-11: Vitality filter
-**Decision:** Remove records with vitality "dead". Keep "alive", "not recorded" and empty.
-**Records:** 23 removed (all NBN).
-**Reason:** Only "dead" is evidence against a live bird. "Not recorded" and empty carry
-no information, the same as GBIF records, which have no vitality field. Filtering on
-them would treat the two sources differently and drop whole NBN datasets that never
-fill in vitality (e.g. Suffolk).
+### 2026-11-11: 10 km squares
+**Decision:** 10 km squares on the British National Grid; 2 km squares only as a comparison from 1992.
+**Reason:** Many early records have only 10 km resolution (largely BTO atlases), and finer squares would drop them. Most GBIF records have no coordinate uncertainty and 54% come from birding hotspots. Every record fits a 10 km square.
 
-## 2026-11-11: Year filters
-**Decision:** Remove records without a year, and keep only records from 1963 onwards.
-**Records:** 18 removed without a year (all GBIF); 2 removed from 1900 (August and
-December).
-**Reason:** Records without a year can't be used in a yearly analysis. The two 1900
-records look genuine but are isolated: the next record is from 1963. They tell us
-nothing about the spread of the current population.
+## Range and spread rate
 
-## 2026-11-11: Isle of Man
-**Decision:** Remove records from the Isle of Man (`countryCode` = IM).
-**Records:** 3 removed (all NBN).
-**Reason:** The Isle of Man is not part of the UK, and the GBIF download (filtered on
-United Kingdom) does not include it. Keeping it would make the two sources cover
-different areas. With 3 records it has no effect on the analysis.
+### 2026-11-11: √(occupied area) per year
+**Decision:** Range = number of occupied 10 km squares × 100 km² per year. Spread rate = slope of √(area) against year (Skellam 1951), reported as a radial rate (slope ÷ √π, since radius = √(area/π)). Fitted for two phases, 1970–2009 and 2010–2025.
+**Reason:** For a population spreading at a constant rate, √(area) rises in a straight line. The plot shows a roughly constant slope until 2009 and a steeper one from 2010; 2010 is also when coverage becomes almost complete.
+**Notes:**
+- The phases are set from the plot, not estimated. The later rate depends on the boundary (from 2005: 3.1 km/yr; from 2013: 4.5 km/yr).
+- The atlas start years (1968, 1981, 1988) are left out of the fits: the NBN Atlas dates each multi-year BTO atlas to its first year.
 
-## 2026-11-11: GBIF data-quality flags
-**Decision:** Keep all records with GBIF date or location flags. No records removed.
-**Records checked (after the earlier filters):**
-- `RECORDED_DATE_INVALID` (16) and `RECORDED_DATE_MISMATCH` (2): all have plausible
-  years (1981–2025), mostly from one dataset (LERN Records). Likely a date-format issue
-  at the provider. Only the year is needed for the analysis.
-- `COUNTRY_INVALID` (6): all in central London, from the Estonian Ornithological
-  Society dataset. Probably sightings by a visiting birder, with the dataset's default
-  country (Estonia) clashing with the coordinates. Coordinates are plausible; only the
-  country text is wrong.
-- `CONTINENT_COORDINATE_MISMATCH`: 0 left (31 in the raw download, all removed by
-  earlier steps).
-**Reason:** None of the flags point to a wrong year or a wrong location.
+## Recording effort
 
-## 2026-11-11: Spatial unit
-**Decision:** Use 10 km squares (hectads, British National Grid) as the main spatial
-unit. 2 km squares (tetrads) are used only as a comparison for the later period, when
-10 km records are rare.
-**Reason:**
-- 10 km resolution records (2% of NBN) are concentrated in the early years, largely
-  from the BTO atlases. Finer squares would drop much of the data for the start of
-  the spread.
-- GBIF records mostly have no coordinate uncertainty, and 54% come from locations used
-  100+ times (birding hotspots). At 2 km, occupancy would largely reflect where birders
-  go.
-- All records fit inside a 10 km square, so none are lost.
-**Consequence:** No coordinate uncertainty filter is needed for the main analysis.
-**Note:** Northern Ireland records (~65) are placed on the British National Grid rather
-than the Irish Grid, so that all records use the same squares.
-**Reference:** Heald et al. (2019) used points, not grid squares, but their question
-was the origin of the population, not the rate of spread. Skellam (1951) models the
-spread through the occupied area, which grid squares give directly.
+### 2026-11-11: Benchmark species
+**Decision:** A 10 km square counts as visited in a year if any of four benchmark species was recorded there: Wren, Robin, Blackbird, Blue Tit. Range index = share of visited squares with a parakeet record. Corrected area = index × 2,843 GB land squares × 100 km². Presence only, never record counts.
+**Reason:** These species occur in almost every 10 km square and their range is stable, so their records show where people recorded, in the same unit as the parakeet range.
+**Area:** Great Britain only. Irish Grid squares don't line up with British ones, and Northern Ireland has only ~65 parakeet records.
 
-## Open decisions
-- Origin of the spread
-- Yearly range metric
-- Correction for recording effort
+### 2026-11-11: Benchmark data
+- **GBIF:** the four species, same filters as the parakeet download, years 1960–2026; simple format; 6,594,769 records; https://doi.org/10.15468/dl.4yeq82
+- **NBN Atlas:** squares per species and year from the search API (`grid_ref_10000`), queried on 11 Nov 2026, instead of a ~26 GB download. Tested on the parakeet: the API squares match the downloaded data.
+
+### 2026-11-11: NBN parakeet squares from the API too
+**Finding:** The NBN Atlas download and API serve different versions of the BTO data (API ~255,900 parakeet records, download 243,105, the same on 10 and 11 Nov).
+**Decision:** For the index, the NBN parakeet squares come from the API as well, so parakeet and visited squares come from the same NBN version. `records.parquet` remains the source for the maps and the uncorrected range in `03_yearly-range`.
+**Reason:** Otherwise squares with parakeets only in the newer data would count as "visited, no parakeets", making the recent index ~5% too low.
+
+### 2026-11-11: Results and limitations
+**Spread rate (effort-corrected, radial, ± 2 SE):** 1970–2009: 1.68 ± 0.14 km/yr; 2010–2025: 4.03 ± 0.44 km/yr. The standard errors are too small, because consecutive years are not independent.
+**What the correction does:** it corrects coverage. Before 1990 only 800–1,400 of 2,843 squares were visited per year, and the correction roughly doubles the area. From about 2008 nearly all squares are visited, and the correction has little effect.
+**What it doesn't do:** it doesn't correct intensity (how thoroughly squares were visited). The atlas years still stand out, and the eBird growth after 2010 is not removed.
+**Is the acceleration real?**
+
+| Variant | 1970–2009 | 2010–2025 |
+|---|---|---|
+| Main index | 1.68 km/yr | 4.03 km/yr |
+| NBN only (no eBird) | 1.74 km/yr | 3.39 km/yr |
+| Persistent squares only (parakeets also the year before or after) | 1.37 km/yr | 4.03 km/yr |
+
+**Conclusion:** Yes. The acceleration holds in both checks; eBird adds about 0.6 km/yr to the recent rate. NBN still contains BirdTrack, which also grew, so not all recording growth is removed.
+
+## Open
+
+- Origin of the spread: future work, building on Heald et al. (2019).

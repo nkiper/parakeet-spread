@@ -1,49 +1,34 @@
 # Spread of ring-necked parakeets in the UK
 
-Mapping how the ring-necked parakeet (*Psittacula krameri*), an introduced species, has spread across the UK over time, using open occurrence records.
+How fast the ring-necked parakeet (*Psittacula krameri*), an introduced species, has spread across Great Britain, using open occurrence records from GBIF and the NBN Atlas.
 
-## Status
+## Result
 
-Work in progress. Records merged, filtered and assigned to 10 km squares; the yearly range metric is next.
+Corrected for recording effort, the parakeet's range spread at about **1.7 km per year from 1970 to 2009** and **3.4–4 km per year from 2010 to 2025**. The acceleration holds without eBird data and with persistently occupied squares only, so it is not just more birdwatching. The correction covers where people recorded, not how intensively, so up to about 0.6 km/yr of the recent rate may still be recording growth.
 
-- [x] Project setup
-- [x] Download records from GBIF and the NBN Atlas
-- [x] Compare sources: records per year, overlap, data quality (`01_explore-sources`)
-- [x] Choose main source: merged (all NBN records plus GBIF-only records)
-- [x] Clean data: filters for vitality, year and Isle of Man (`src/build_records.py`). Duplicate sightings across systems are an open to-do in `notes.md`
-- [x] Choose spatial unit: 10 km squares, with 2 km squares as a comparison (`02_spatial-unit`)
-- [ ] Choose yearly range metric
-- [ ] Correct for recording effort
-- [ ] Map and quantify the spread
+Figures are in `figures/` (animation: `hectads_by_year.mp4`). Choices and their reasons are in [`decisions.md`](decisions.md); limitations, to-dos and future work in [`notes.md`](notes.md).
 
-Methodological choices and their reasons are logged in [`decisions.md`](decisions.md). Open tasks, reminders for the write-up and open questions are in [`notes.md`](notes.md).
+**Status:** analysis complete; presentation in progress.
+
+## Method
+
+1. Merge and clean the GBIF and NBN Atlas records (`01_explore-sources`, `src/build_records.py`).
+2. Assign records to 10 km British National Grid squares (`02_spatial-unit`).
+3. Occupied area per year; spread rate as the slope of √(area) against year, following Skellam (1951) (`03_yearly-range`).
+4. Correct for recording effort with four common bird species as benchmarks for which squares were visited; spread rates and robustness checks (`04_effort-correction`).
 
 ## Data
 
-Downloaded on 10 November 2026:
+| Data | Source | Records |
+|---|---|---|
+| Parakeet | GBIF, 10 Nov 2026 ([DOI](https://doi.org/10.15468/dl.xnh55x)) | 192,792 |
+| Parakeet | NBN Atlas download, 10 Nov 2026 (again 11 Nov, identical) | 243,105 |
+| Benchmarks (Wren, Robin, Blackbird, Blue Tit) | GBIF, 11 Nov 2026 ([DOI](https://doi.org/10.15468/dl.4yeq82)) | 6,594,769 |
+| Benchmarks and parakeet, squares per year | NBN Atlas API, 11 Nov 2026 | `data/processed/nbn_squares_api.csv.gz` |
 
-| Source | Query | Format | Records |
-|---|---|---|---|
-| GBIF | *P. krameri*, United Kingdom, with coordinates, no geospatial issues | Simple | 192,792 |
-| NBN Atlas | *P. krameri*, occurrence records | Full Darwin Core | 243,105 |
+Raw downloads are not in Git. The NBN Atlas API results can't be reproduced exactly later, so they are kept in Git.
 
-Raw data is not tracked in Git. To reproduce, download from the GBIF DOI below and rerun the NBN Atlas query, then place both files in `data/raw/`.
-
-## Structure
-
-```
-data/raw/         original downloads (not tracked)
-data/processed/   merged and filtered records (records.parquet, not tracked) and GBIF dataset titles
-data/external/    reference data such as land outlines (downloaded automatically, not tracked)
-src/              scripts (build_records.py: merge, filter, assign grid squares and save the records)
-docs/             relevant papers
-notebooks/        analysis notebooks
-figures/          maps and plots
-decisions.md      decision log
-notes.md          to-dos, write-up reminders and open questions
-```
-
-## Setup
+## Reproduce
 
 ```bash
 python -m venv .venv
@@ -51,22 +36,34 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Place the raw downloads in `data/raw/`:
-
-- GBIF: `data/raw/0000595-261110092616502.csv`
-- NBN Atlas: unzip to `data/raw/records-2026-11-10/`
-
-Then build the merged and filtered records table:
+Place the downloads in `data/raw/`: the GBIF parakeet file as `0000595-261110092616502.csv`, the NBN Atlas download unzipped to `records-2026-11-11/`, and the GBIF benchmark zip in `benchmarks/`. Then:
 
 ```bash
-python src/build_records.py
+python src/build_records.py                 # parakeet records -> data/processed/records.parquet
+python src/build_gbif_benchmarks.py data/raw/benchmarks/0002043-261110092616502.zip
+python src/build_nbn_squares.py             # optional: refreshes the NBN Atlas API results
 ```
 
-This writes `data/processed/records.parquet`, which the analysis notebooks after `01_explore-sources` start from.
+and run the notebooks in order.
+
+## Structure
+
+```
+data/raw/         downloads (not tracked)
+data/processed/   built tables: records, benchmark squares, range index, spread rates
+data/external/    land outlines (downloaded automatically, not tracked)
+src/              build scripts; shared steps in pipeline.py and grid.py
+notebooks/        analysis, 01–04
+figures/          maps and plots
+docs/             papers
+```
 
 ## Data citation
 
 - GBIF.org (10 November 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.xnh55x
+- GBIF.org (11 November 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.4yeq82
 - NBN Atlas occurrence download at NBN Atlas (https://nbnatlas.org/), accessed on 10 November 2026.
+- NBN Atlas occurrence records via the NBN Atlas API (https://records-ws.nbnatlas.org/), accessed on 11 November 2026.
+- Land outlines: Natural Earth (public domain).
 
 NBN Atlas records come from many data partners, under CC-BY-NC. Thanks to the NBN Atlas, its data partners, and all recorders.

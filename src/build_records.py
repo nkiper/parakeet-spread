@@ -3,7 +3,8 @@
 Loads the raw GBIF and NBN Atlas downloads, merges them into one table, applies the
 filters decided in notebooks/01_explore-sources.ipynb, and assigns each record to
 10 km and 2 km grid squares (notebooks/02_spatial-unit.ipynb). Each step refers to
-its entry in decisions.md.
+its entry in decisions.md. The cleaning steps themselves are in pipeline.py, shared
+with the benchmark species.
 
 Output: data/processed/records.parquet
 
@@ -13,17 +14,17 @@ Run from the project root:
 
 from pathlib import Path
 
-import geopandas as gpd
-import numpy as np
 import pandas as pd
 import requests
+
+from pipeline import add_squares, apply_filters, drop_absences
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw"
 PROCESSED = ROOT / "data" / "processed"
 
 GBIF_PATH = RAW / "0000595-261110092616502.csv"
-NBN_PATH = RAW / "records-2026-11-10" / "records-2026-11-10.csv"
+NBN_PATH = RAW / "records-2026-11-11" / "records-2026-11-11.csv"
 DATASETS_PATH = PROCESSED / "gbif_datasets.csv"  # cached GBIF dataset titles
 OUT_PATH = PROCESSED / "records.parquet"
 
@@ -45,8 +46,6 @@ NBN_COLS = [
     "datasetName", "institutionCode", "collectionCode", "individualCount",
 ]
 
-FIRST_YEAR = 1963  # decisions.md: "Year filters"
-
 
 # --- Loading -----------------------------------------------------------------
 
@@ -60,12 +59,7 @@ def load_gbif() -> pd.DataFrame:
         dtype={"gbifID": str, "occurrenceID": str, "catalogNumber": str},
     )
     print(f"GBIF loaded: {len(gbif):,}")
-
-    # decisions.md: "GBIF absence records"
-    before = len(gbif)
-    gbif = gbif[gbif["occurrenceStatus"] == "DETECTED"]
-    print(f"  removed {before - len(gbif):,} NOT_DETECTED records")
-    return gbif
+    return drop_absences(gbif)
 
 
 def load_nbn() -> pd.DataFrame:
@@ -174,58 +168,6 @@ def merge(gbif: pd.DataFrame, nbn: pd.DataFrame) -> pd.DataFrame:
     assert len(records) == len(nbn) + len(gbif_only), "records lost or doubled in merge"
     assert records["record_id"].is_unique, "record_id is not unique"
     print(f"Merged: {len(records):,}")
-    return records
-
-
-# --- Filtering ---------------------------------------------------------------
-
-def apply_filters(records: pd.DataFrame) -> pd.DataFrame:
-    """Apply the record filters, printing how many records each one removes."""
-
-    def drop(mask_keep, label):
-        nonlocal records
-        before = len(records)
-        records = records[mask_keep]
-        print(f"  removed {before - len(records):,} {label}")
-
-    print("Filters:")
-    # decisions.md: "Vitality filter" (keep alive, not recorded and empty)
-    drop(records["vitality"] != "dead", "dead records")
-    # decisions.md: "Year filters"
-    drop(records["year"].notna(), "records without a year")
-    drop(records["year"] >= FIRST_YEAR, f"records before {FIRST_YEAR}")
-    # decisions.md: "Isle of Man"
-    drop(records["countryCode"] != "IM", "Isle of Man records")
-    # decisions.md: "GBIF data-quality flags": all flagged records are kept, no filter.
-
-    return records.reset_index(drop=True)
-
-
-# --- Grid squares ------------------------------------------------------------
-
-def square_id(easting, northing, size_m):
-    """ID of the grid square containing each point: south-west corner in km, e.g. '530_180'."""
-    e_km = (easting // size_m * size_m / 1000).astype(int)
-    n_km = (northing // size_m * size_m / 1000).astype(int)
-    return e_km.astype(str) + "_" + n_km.astype(str)
-
-
-def add_squares(records: pd.DataFrame) -> pd.DataFrame:
-    """Add British National Grid coordinates and 10 km / 2 km square IDs.
-
-    decisions.md: "Spatial unit". Northern Ireland records are placed on the British
-    National Grid too, so all records use the same squares.
-    """
-    points = gpd.points_from_xy(
-        records["decimalLongitude"], records["decimalLatitude"], crs="EPSG:4326"
-    ).to_crs("EPSG:27700")
-    records = records.assign(easting=points.x, northing=points.y)
-    assert np.isfinite(records[["easting", "northing"]]).all().all(), "coordinate conversion failed"
-
-    records["hectad"] = square_id(records["easting"], records["northing"], 10_000)  # 10 km
-    records["tetrad"] = square_id(records["easting"], records["northing"], 2_000)   # 2 km
-    print(f"Squares: {records['hectad'].nunique():,} occupied 10 km, "
-          f"{records['tetrad'].nunique():,} occupied 2 km")
     return records
 
 
