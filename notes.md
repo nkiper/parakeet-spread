@@ -8,26 +8,28 @@ Choices that have been made, and why, go in [`decisions.md`](decisions.md).
 ### Necessary
 
 - [x] Spread rate: slope of √(area) against year, corrected and uncorrected, for
-      1970–2025 and three sub-periods, atlas start years left out (`04_effort-correction`)
+      1970–2025 and two phases (1970–2009, 2010–2025), atlas years left out (`04_effort-correction`)
 - [x] Close the open decisions in `decisions.md`: yearly range metric, recording effort
       (with its limitations)
 - [x] Check whether the acceleration after 2010 is real: NBN only (3.4 km/yr) and
       persistent squares (4.0 km/yr) both show it (`acceleration_checks.png`)
-- [ ] Choose the figures for the presentation: animation (`hectads_by_year.mp4`),
-      corrected vs uncorrected range, visited squares per year, spread rate before and
-      from 2010 (`spread_rate_by_period.png`), acceleration checks, possibly 10 km vs 2 km
-- [x] Spread model: five centres at one constant speed, speed and start years fitted to
-      1970–2025 (`05_spread-model`). Fits much better than London alone; new centres
-      account for about half of the acceleration after 2010
+- [x] Choose the figures for the presentation: see "Presentation outline" below
+- [x] Spread model: six centres from the 2025 map at one constant speed, speed and
+      start years fitted to 1970–2025 (`05_spread-model`). Fits much better than London
+      alone; new centres account for about 60 to 80% of the acceleration after 2010
 - [x] Atlas check: BTO atlases as independent points (`04_effort-correction`, end)
-- [ ] Decide whether the spread model goes in the presentation (`spread_model_curves.png`,
-      `spread_model_speed_profile.png`, `spread_model_maps.png`, `atlas_check.png`)
+- [x] Spread model and atlas check go in the presentation (see outline)
+- [x] Skellam animation: three scenes, plus scene 3 without the walking-only line (`src/skellam_animation.py`)
 - [ ] Limitations slide: coverage corrected but not intensity; atlas years; eBird
-      growth; NBN download vs API versions; Great Britain only
+      growth; NBN download vs API versions; Great Britain only; observer effect in
+      cities; stall after Bird Atlas 2007–11
 - [ ] Presentation
 
 ### Nice to have (if there is time)
 
+- [ ] Spread model: fit the start years to the maps (each centre's circle against the
+      observed squares around it) instead of the total area. Would pin down the start
+      years and size the circles correctly (`decisions.md`, "Open")
 - [ ] Stricter "visited": a square counts as visited only if all four (or at least
       three) benchmarks were recorded that year. Addresses the intensity problem
       directly, using presence only (~1–2 hours)
@@ -42,11 +44,62 @@ Choices that have been made, and why, go in [`decisions.md`](decisions.md).
   data, so compare with the published atlas maps instead; also BBS trends (step 9)
 - A real intensity correction: occupancy models (detection probability per visit) or
   methods such as Frescalo
-- Origin of the spread, building on Heald et al. (2019), e.g. geographic profiling of
+- Origin of the spread, building on Heald et al. (2020), e.g. geographic profiling of
   the early records
 - Duplicate sightings across systems (eBird and BirdTrack)
 - Include Ireland (Irish Grid squares)
 - Spread direction and speed per region, e.g. along urban areas
+
+## Presentation outline
+
+About 10 minutes. Files in `figures/`. First draft: `GHD_Presentation.pptx`; backup slides:
+`GHD_Backup_Slides.pptx`. The outline below is the plan the draft started from.
+
+**Title options:**
+
+1. Faster, or from more places? The spread of ring-necked parakeets in Great Britain
+2. Green invaders: 55 years of parakeet spread in Great Britain
+3. From London parks to Glasgow: measuring how fast parakeets spread
+4. Counting birds, correcting for birdwatchers: the spread of ring-necked parakeets
+5. Spreading by leaps: ring-necked parakeets in Britain, 1970–2025
+
+**Slides:**
+
+1. Title
+2. The question: an introduced species that now seems to be everywhere. How fast is it
+   spreading, and is it speeding up?
+3. Data: GBIF + NBN Atlas, ~434,000 records on 10 km squares. Records count sightings,
+   not birds
+4. What the data look like: `hectads_by_year.mp4`
+5. How spread works (Skellam 1951), three slides; the videos have no text, so the
+   explanation and formula go on the slides:
+   - `skellam_1_one_bird.mp4`: one bird does a random walk
+   - `skellam_2_walking.mp4`: many birds walking explore a circle, but the spread slows
+     down (radius ∝ √time)
+   - `skellam_3_breeding.mp4`: walking + breeding gives a constant speed, c = 2√(rD),
+     so √(occupied area) rises in a straight line
+6. The problem: more birdwatchers. `visited_squares_per_year.png`, atlas-year jumps
+7. Effort correction: four common garden birds show which squares were visited.
+   `range_corrected_vs_uncorrected.png`
+8. Result: `spread_rate_by_period.png`, ~1.6 km/yr until 2009, ~4 km/yr from 2010
+9. Is the speed-up real? `acceleration_checks.png`: holds with NBN only and with
+   persistent squares
+10. Independent check: `atlas_check.png`, breeding atlases lie on the trend line
+11. Why the speed-up? Six centres from the 2025 map, one speed. `spread_model_curves.png`:
+    RMSE 8.1 vs 15.2 km for London alone, 1.5 km/yr; new centres explain about 60 to
+    80% of the speed-up, depending on the period
+12. Where the model fits and where it doesn't: `spread_model_maps.png`. London fits;
+    Cardiff has early records but stayed on the coast, so it's not a centre; about half
+    of the 2025 squares lie outside the circles
+13. Limitations: intensity not corrected, observer effect in cities, stall after Bird
+    Atlas 2007–11, Great Britain only
+14. Conclusions and outlook: ~1.5 km/yr per centre; the speed-up is mostly new centres,
+    not faster spread. Next: fit the model to the maps, compare with Bird Atlas 2007–11
+
+**Backup slides:** `spread_model_curves_persistent.png` (same model fitted to persistent
+squares: same speed, 64–78% of the speed-up explained), `spread_model_speed_profile.png`, `sqrt_area_10km_vs_2km.png`, why
+yearly rather than cumulative counts (one-off sightings stay forever, recording growth
+builds up, errors carry forward).
 
 ## To do
 
@@ -109,7 +162,7 @@ Choices that have been made, and why, go in [`decisions.md`](decisions.md).
 
 ## Questions and ideas
 
-- Origin of the spread: Heald et al. (2019) find no support for the popular origin
+- Origin of the spread: Heald et al. (2020) find no support for the popular origin
   stories and suggest repeated releases around southwest London. Use London as the core
   area rather than a single starting point?
 - Yearly range metric: following Skellam (1951), plot √(occupied area) against year.

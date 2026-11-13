@@ -40,8 +40,8 @@ Choices and their reasons. Limitations, to-dos and future work are in [`notes.md
 **Decision:** Range = number of occupied 10 km squares × 100 km² per year. Spread rate = slope of √(area) against year (Skellam 1951), reported as a radial rate (slope ÷ √π, since radius = √(area/π)). Fitted for two phases, 1970–2009 and 2010–2025.
 **Reason:** For a population spreading at a constant rate, √(area) rises in a straight line. The plot shows a roughly constant slope until 2009 and a steeper one from 2010; 2010 is also when coverage becomes almost complete.
 **Notes:**
-- The phases are set from the plot, not estimated. The later rate depends on the boundary (from 2005: 3.1 km/yr; from 2013: 4.5 km/yr).
-- The atlas start years (1968, 1981, 1988) are left out of the fits: the NBN Atlas dates each multi-year BTO atlas to its first year.
+- The phases are set from the plot, not estimated. The later rate depends on the boundary (from 2005: 3.2 km/yr; from 2013: 4.5 km/yr).
+- The atlas start years (1968, 1981, 1988) are left out of the fits: the NBN Atlas dates each multi-year BTO atlas to its first year. So is 2008 (see "2008 left out of the fits").
 
 ## Recording effort
 
@@ -60,19 +60,19 @@ Choices and their reasons. Limitations, to-dos and future work are in [`notes.md
 **Reason:** Otherwise squares with parakeets only in the newer data would count as "visited, no parakeets", making the recent index ~5% too low.
 
 ### 2026-11-11: Results and limitations
-**Spread rate (effort-corrected, radial, ± 2 SE):** 1970–2009: 1.68 ± 0.14 km/yr; 2010–2025: 4.03 ± 0.44 km/yr. The standard errors are too small, because consecutive years are not independent.
+**Spread rate (effort-corrected, radial, ± 2 SE):** 1970–2009: 1.64 ± 0.13 km/yr; 2010–2025: 4.03 ± 0.44 km/yr (atlas years 1968, 1981, 1988 and 2008 left out; see "2008 left out of the fits"). The standard errors are too small, because consecutive years are not independent.
 **What the correction does:** it corrects coverage. Before 1990 only 800–1,400 of 2,843 squares were visited per year, and the correction roughly doubles the area. From about 2008 nearly all squares are visited, and the correction has little effect.
 **What it doesn't do:** it doesn't correct intensity (how thoroughly squares were visited). The atlas years still stand out, and the eBird growth after 2010 is not removed.
 **Is the acceleration real?**
 
 | Variant | 1970–2009 | 2010–2025 |
 |---|---|---|
-| Main index | 1.68 km/yr | 4.03 km/yr |
-| NBN only (no eBird) | 1.74 km/yr | 3.39 km/yr |
-| Persistent squares only (parakeets also the year before or after) | 1.37 km/yr | 4.03 km/yr |
+| Main index | 1.64 km/yr | 4.03 km/yr |
+| NBN only (no eBird) | 1.69 km/yr | 3.39 km/yr |
+| Persistent squares only (parakeets also the year before or after) | 1.34 km/yr | 4.03 km/yr |
 
 **Conclusion:** Yes. The acceleration holds in both checks; eBird adds about 0.6 km/yr to the recent rate. NBN still contains BirdTrack, which also grew, so not all recording growth is removed.
-**The 2010–2025 rate depends on the stall after the Bird Atlas:** the corrected range peaks in 2008 (√area 152 km), stalls until 2013 (136 km), and then rises steeply (4.4 km/yr for 2014–2025). The stall lowers the 2010–2025 slope rather than inflating it, but the recent rate depends on where the period starts: windows that span the stall give 3.1 km/yr (2005–2025) and 3.3 km/yr (2007–2025). If the 2008 peak and the stall are recording artefacts (more recording during the atlas, less after it), part of the steep rise from 2014 is catch-up, and the underlying recent rate is closer to 3 km/yr. The data can't tell; "about 4 km/yr" describes the rise after the stall.
+**The 2010–2025 rate depends on the stall after the Bird Atlas:** the corrected range peaks in 2008 (√area 152 km), falls to 135 km in 2012 and stays there in 2013, and then rises steeply (4.4 km/yr for 2014–2025). The stall lowers the 2010–2025 slope rather than inflating it, but the recent rate depends on where the period starts: windows that span the stall give 3.2 km/yr (2005–2025) and 3.5 km/yr (2007–2025). If the 2008 peak and the stall are recording artefacts (more recording during the atlas, less after it), part of the steep rise from 2014 is catch-up, and the underlying recent rate is closer to 3–3.5 km/yr. The data can't tell; "about 4 km/yr" describes the rise after the stall.
 **Note:** `spread_rates.csv` in Git still had the earlier sub-periods (1970–89, 1990–2009); the cell had been changed to 1970–2009 and 2010–2025 but not re-run. Re-run on 11 Nov 2026; the values above are from the corrected file.
 
 ### 2026-11-11: BTO atlases as an independent check
@@ -83,52 +83,72 @@ Choices and their reasons. Limitations, to-dos and future work are in [`notes.md
 
 | Atlas | Squares | √area atlas | Trend line | Non-atlas, pooled |
 |---|---|---|---|---|
-| First Breeding 1968–72 | 4 | 20 km | 18–24 km | 33 km |
+| First Breeding 1968–72 | 4 | 20 km | 19–24 km | 33 km |
 | Winter 1981–84 | 70 | 84 km | 55–59 km | 89 km |
-| Second Breeding 1988–91 | 63 | 79 km | 76–80 km | 102 km |
+| Second Breeding 1988–91 | 63 | 79 km | 75–80 km | 102 km |
 
 The breeding atlases confirm the trend line. The Winter Atlas lies above it, but agrees with the other data from those winters: wandering in winter and three pooled winters, or a real high in the early 1980s.
 **Bird Atlas 2007–11:** in the NBN Atlas it is part of "Birds (BTO+partners)" together with BirdTrack, and no field (dates, sampling protocol) separates them. Comparison with the published maps is future work.
 
+### 2026-11-13: 2008 left out of the fits
+**Decision:** Leave out 2008 as well as the atlas start years 1968, 1981 and 1988, in the spread rates (`04_effort-correction`) and the spread model (`05_spread-model`).
+**Reason:** 2008 is the jump year of Bird Atlas 2007–11: "Birds (BTO+partners)" covers 206 squares in 2008, against 132 in 2007 and 135 in 2012 (see `notes.md`, caveats). Like the other atlas start years, it reflects survey effort, not spread.
+**Effect:** small. Spread rate 1970–2009: 1.64 instead of 1.68 km/yr (2010–2025 unchanged, 4.03). Six-centre model: speed 1.52 instead of 1.50 km/yr, RMSE 8.1 instead of 8.4 km, share of the acceleration explained 60–81% instead of 57–85%. The start years shift (e.g. Nottingham 2003 instead of 1990), which again shows they are poorly determined.
+
 ## Spread model
 
-### 2026-11-11: Constant-speed circles from five urban centres
-**Decision:** Model the spread as circles growing at one constant speed from five centres: London, Birmingham, Manchester, Glasgow, Cardiff (`05_spread-model`). Only spread is modelled, not population size.
-- **Occupied:** a 10 km land square in Great Britain whose centre lies within c × (years since start) of a centre, plus the centre's own square.
+### 2026-11-11: Constant-speed circles from several centres
+**Decision:** Model the spread as circles growing at one constant speed from several centres (`05_spread-model`); the centres are chosen in the next entry. Only spread is modelled, not population size.
+- **Occupied:** a 10 km land square in Great Britain whose centre lies within c × (years since start) of a centre, plus the centre's own square. Centres at city coordinates.
 - **Parameters:** one speed c for all centres, and one start year per centre, all fitted.
-- **Fit:** least squares on √(area) against the effort-corrected range, 1970–2025, atlas start years left out. Start years are whole years, from 5 years before the first parakeet record within 25 km of the city (birds may have been there before they were first recorded) to 2025.
-- **Search:** London only (2 parameters) exhaustively; five centres (6 parameters) by coordinate descent from 40 random starting points (seeded), keeping the best.
-- **Two models:** London only, and five centres.
+- **Fit:** least squares on √(area) against the effort-corrected range, 1970–2025, atlas years (1968, 1981, 1988, 2008) left out. Start years are whole years, from 5 years before the first parakeet record within 25 km of the city (birds may have been there before they were first recorded) to 2025.
+- **Search:** London only (2 parameters) exhaustively; six centres (7 parameters) by coordinate descent from 40 random starting points (seeded), keeping the best.
+- **Two models:** London only, and six centres.
 
 **Reason:**
 - Skellam (1951): random dispersal plus growth gives a front moving at constant speed, so the long-run result (a circle growing at constant speed) is enough when only the spread is of interest. A full reaction-diffusion simulation would need a growth rate and a dispersal rate separately, which occupancy data can't determine.
 - One shared speed: the question is whether one speed with several centres explains the curve, rather than faster spread.
-- The centres are the largest cities, where escaped or released pet birds are most likely, and they are visible as centres in the animation. The goal is to explain the current spread, not to predict it, so choosing the centres and fitting the whole period with hindsight is fine.
+- The goal is to explain the current spread, not to predict it, so choosing the centres and fitting the whole period with hindsight is fine.
 - Start years bounded by the first records, so the fit can't place a centre long before any bird was seen there.
 
 **Result:**
 
-| | London only | Five centres |
+| | London only | Six centres |
 |---|---|---|
-| Speed | 2.1 km/yr | 1.5 km/yr (within 10% of best RMSE: 1.5–1.9) |
-| Start years | London 1970 | London 1963, Manchester 1988, Cardiff 1995, Glasgow 2002, Birmingham 2005 |
-| RMSE 1970–2025 | 15.1 km | 8.8 km |
-| Model spread rate 1970–2009 → 2010–2025 | 2.0 → 1.6 km/yr | 1.7 → 2.8 km/yr (observed 1.7 → 4.0) |
+| Speed | 2.1 km/yr | 1.5 km/yr (near-best fits 1.5–1.6) |
+| Start years | London 1970 | London 1963, Birmingham 1995, Glasgow 1996, Manchester 2002, Nottingham 2003, Newcastle 2004 |
+| RMSE 1970–2025 | 15.2 km | 8.1 km |
+| Model spread rate 1970–2009 → 2010–2025 | 2.0 → 1.6 km/yr | 1.7 → 3.1 km/yr (observed 1.6 → 4.0) |
 
-- Five centres fit much better, before and after 2010; the speed matches the pre-2010 rate from `04`. At one constant speed, the new centres account for about half of the acceleration measured over 2010–2025.
-- That share depends on the window, because of the stall after the Bird Atlas (see "Results and limitations" above). Model against observed: 2010–2025 2.8 vs 4.0 km/yr (about half); 2007–2025 2.8 vs 3.3 (about 70%); 2005–2025 2.8 vs 3.1 (about 75%), each relative to London alone (1.6–1.7 km/yr). A smooth constant-speed model can't follow a stall followed by a steep rise.
-- An earlier version fitted the speed to 1970–2009 only and projected it (start years from a rule, not fitted). Its post-2010 slope was steeper (3.3 km/yr, "two-thirds"), but only because its curve ran far above the data in 2010–2019 (RMSE 26.9 km after 2010, against 11.8 km for the full fit).
+- Six centres fit much better, before and after 2010; the speed matches the pre-2010 rate from `04`.
+- Share of the acceleration explained = the six-centre model's own speed-up divided by the observed speed-up, each measured against the rate from 1970 to the year before the window (see "Share of the speed-up" below). It depends on the window, because of the stall after the Bird Atlas (see "Results and limitations" above): 59% for 2010–2025, 72% for 2007–2025, 80% for 2005–2025. So about 60 to 80%. A smooth constant-speed model can't follow a stall followed by a steep rise.
+- An earlier version fitted the speed to 1970–2009 only and projected it (start years from a rule, not fitted). Its post-2010 slope was steeper (3.3 km/yr, "two-thirds"), but only because its curve ran far above the data in 2010–2019 (RMSE 26.9 km after 2010, against 11.8 km for the full fit with five centres).
 - London starts at its lower bound, so the fit would place it earlier still.
-- The other start years are poorly determined: near-best fits (within 5% of the best RMSE) put Manchester at 1988–2005, Glasgow 1991–2007, Birmingham 1998–2008, Cardiff 1983–2007. Consistent is the order: London first, the others from the late 1980s to the 2000s.
+- The other start years are poorly determined: near-best fits (within 5% of the best RMSE) put Manchester at 2001–2006, Birmingham 1995–2006, Newcastle 1991–2006, Nottingham 1990–2003, Glasgow 1996–1997. Consistent is the order: London first, the others from about 1990 to the mid-2000s.
 
 **Limitations:**
 - Observer effect: cities have more birdwatchers and more escapes; the effort correction doesn't cover intensity.
-- Start years are fitted to the total area only, which doesn't say which city added which squares; fitting to the maps would determine them better.
-- Cardiff doesn't fit: records from 1972, but it stayed in the coastal urban belt and hardly spread inland. Swansea was occupied by 1983, too early for spread from Cardiff at this speed. Coast, towns and recording effort coincide there and can't be separated.
-- About half of the squares occupied in 2025 (262 of 543) lie outside all five circles (clusters near Nottingham, Southampton, Newcastle, East Kent, and many scattered squares).
+- Start years are fitted to the total area only, which doesn't say which city added which squares. The fit shares the area among the centres almost arbitrarily: Glasgow gets a 44 km circle by 2025 against a cluster of about 14 km; Manchester 35 km against about 44 km. Fitting to the maps would fix this (see "Open").
+- About half of the squares occupied in 2025 (262 of 543) lie outside all six circles (groups near Liverpool, Leeds, Southampton, Bristol, East Kent, and many scattered squares).
 - Circles ignore the sea and habitat.
+- Robust to one-off sightings: fitted to the range from persistent squares only (`05_spread-model`, "Check: fit to persistent squares"), the six-centre speed stays 1.5 km/yr (RMSE 7.8 km, London alone 14.6 km) and the share of the acceleration explained is 64 / 73 / 78% (windows from 2010 / 2007 / 2005), against 59 / 72 / 80% for all squares. Persistent squares are not used for the main fit, because persistence itself depends on recording effort (a square must be recorded in two neighbouring years, which is less likely in the sparse early decades).
 - The model falls behind the observed range after 2020.
+
+### 2026-11-11: Six centres chosen from the 2025 map
+**Decision:** Centres London, Manchester, Birmingham, Newcastle, Nottingham, Glasgow, replacing the first choice of the five largest cities (London, Birmingham, Manchester, Glasgow, Cardiff).
+**How:** On the 2025 map of persistent squares (parakeets in 2025 and 2024): the share of squares occupied within 30 km of candidate cities, and clusters of touching occupied squares (`05_spread-model`, "Choosing the centres from the 2025 map"). The six are the largest separate clusters near large cities: London 149 squares, Manchester 62, Birmingham 30, Newcastle 17, Nottingham 16, and Glasgow 6 (small, but clearly separate from the others). East Kent (11) and Southampton (8) are smaller and coastal and are left out.
+**Reason:**
+- Cardiff and Bristol have no cluster (15% and 10% of squares occupied within 30 km). Cardiff has records from 1972 but stayed in the coastal urban belt and hardly spread inland; Swansea was occupied by 1983, too early for spread from Cardiff at this speed. Coast, towns and recording effort coincide there and can't be separated.
+- Leeds has 39% occupied within 30 km against 72% for Manchester, so Manchester stays.
+**Effect:** compared with the five largest cities (both fitted with 2008 still in): RMSE 8.4 against 8.8 km, 3.0 against 2.8 km/yr after 2010, and the same map agreement (63% of persistent 2025 squares inside the circles). With start years fitted to the total area, the choice of centres matters little; the map-based centres are better justified.
+**Note:** the 2025 map shows where populations are now, not when they started. Centres are placed at city coordinates, although the Newcastle and Nottingham clusters are centred 15–20 km away.
+
+### 2026-11-13: Share of the speed-up measured against each curve's own earlier rate
+**Decision:** The share of the acceleration explained by the six-centre model is (model rate in the window − model rate before) / (observed rate in the window − observed rate before), with "before" = 1970 to the year before the window. Previously it was measured against the London-only fit: (six centres − London only) / (observed − London only).
+**Reason:** The London-only fit has one speed for the whole period, so it compromises between the slow and the fast phase: too fast before 2010 (it runs above the data from about 1990 to 2008) and too slow after. It is not a fair stand-in for "no new centres". The new definition needs no London model.
+**Effect:** almost none. 59 / 72 / 80% (windows from 2010 / 2007 / 2005) against 60 / 73 / 81% before; a London-only model fitted to 1970–2009 only (1.76 km/yr) as baseline gives 63 / 75 / 83%. All three agree because every London-only version spreads at about 1.5–1.7 km/yr in the window, close to the observed rate before 2010. The London-only rates stay in the notebook table for comparison.
 
 ## Open
 
-- Origin of the spread: future work, building on Heald et al. (2019).
+- Origin of the spread: future work, building on Heald et al. (2020).
+- Spread model: fit the start years to the maps (each centre's circle against the observed squares around it) instead of the total area. Would pin down the start years and size the circles correctly; if there is time at the end.

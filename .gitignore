@@ -23,3 +23,5 @@ data/external/
 Thumbs.db
 .vscode/
 .idea/
+
+*.pptx
